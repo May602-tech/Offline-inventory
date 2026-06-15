@@ -52,6 +52,13 @@ const dict = {
     noCategories: "No categories yet",
     noProductsInCategory: "No products in this category",
     customers: "Customers",
+    salesHistory: "Sales History",
+    receipts: "Receipts",
+    searchReceipts: "Search receipt or customer",
+    allCustomers: "All customers",
+    allStatuses: "All statuses",
+    fromDate: "From date",
+    toDate: "To date",
     reports: "Reports",
     settings: "Settings",
     today: "Today",
@@ -130,6 +137,13 @@ const dict = {
     noCategories: "အမျိုးအစားမရှိသေးပါ",
     noProductsInCategory: "ဤအမျိုးအစားတွင် ပစ္စည်းမရှိသေးပါ",
     customers: "ဖောက်သည်များ",
+    salesHistory: "အရောင်းမှတ်တမ်း",
+    receipts: "ဘောင်ချာများ",
+    searchReceipts: "ဘောင်ချာ/ဖောက်သည်ရှာရန်",
+    allCustomers: "ဖောက်သည်အားလုံး",
+    allStatuses: "အခြေအနေအားလုံး",
+    fromDate: "စရက်",
+    toDate: "ဆုံးရက်",
     reports: "အစီရင်ခံစာ",
     settings: "ဆက်တင်",
     today: "ယနေ့",
@@ -697,7 +711,7 @@ export default function HeinsInventoryApp() {
     event.target.value = "";
   };
 
-  const navItems = [["home", Home, t("home")], ["sell", ShoppingCart, t("sell")], ["categories", Package, t("categories")], ["customers", Users, t("customers")], ["reports", BarChart3, t("reports")], ["settings", Settings, t("settings")]];
+  const navItems = [["home", Home, t("home")], ["sell", ShoppingCart, t("sell")], ["categories", Package, t("categories")], ["customers", Users, t("customers")], ["salesHistory", ClipboardList, t("salesHistory")], ["reports", BarChart3, t("reports")], ["settings", Settings, t("settings")]];
 
   return <div className="min-h-screen bg-gradient-to-b from-white via-sky-50/40 to-white font-sans text-sm text-slate-950"><div className="mx-auto max-w-3xl px-4 pb-8 pt-4"><AppHeader onOpenMenu={() => setMenuOpen(true)} />{tab === "home" && <HomePage t={t} setTab={setTab} todayReport={todayReport} lowStockCount={lowStockCount} products={data.products} sales={data.sales} openReceipt={setReceiptSale} />}{tab === "sell" && <SellPage t={t} customers={data.customers} cart={cart} updateQty={updateQty} cartTotal={cartTotal} cashReceived={cashReceived} setCashReceived={setCashReceived} change={change} completeSale={completeSale} setAddItemsModal={setAddItemsModal} selectedCustomerId={selectedCustomerId} setSelectedCustomerId={setSelectedCustomerId} />}{tab === "categories" && <CategoriesPage
   t={t}
@@ -715,7 +729,7 @@ export default function HeinsInventoryApp() {
   openAddProduct={(categoryId) => { setSelectedCategoryId(categoryId); setEditingProduct(null); setProductModal(true); }}
   openEditProduct={(product) => { setSelectedCategoryId(product.categoryId); setEditingProduct(product); setProductModal(true); }}
   deleteProduct={deleteProduct}
-/>}{tab === "customers" && <CustomersPage t={t} customers={data.customers} search={customerSearch} setSearch={setCustomerSearch} openAdd={() => { setEditingCustomer(null); setCustomerModal(true); }} openEdit={(c) => { setEditingCustomer(c); setCustomerModal(true); }} deleteCustomer={deleteCustomer} />}{tab === "reports" && <ReportsPage t={t} report={report} reportStart={reportStart} reportEnd={reportEnd} setReportStart={setReportStart} setReportEnd={setReportEnd} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} addExpense={addExpense} openReceipt={setReceiptSale} />}{tab === "settings" && <SettingsPage t={t} language={data.settings.language} setLanguage={setLanguage} backup={backup} restoreInputRef={restoreInputRef} openShopInfo={() => setShopInfoOpen(true)} openAbout={() => setAboutOpen(true)} />}</div><SideMenu
+/>}{tab === "customers" && <CustomersPage t={t} customers={data.customers} search={customerSearch} setSearch={setCustomerSearch} openAdd={() => { setEditingCustomer(null); setCustomerModal(true); }} openEdit={(c) => { setEditingCustomer(c); setCustomerModal(true); }} deleteCustomer={deleteCustomer} />}{tab === "salesHistory" && <SalesHistoryPage t={t} sales={data.sales} customers={data.customers} openReceipt={setReceiptSale} />}{tab === "reports" && <ReportsPage t={t} report={report} reportStart={reportStart} reportEnd={reportEnd} setReportStart={setReportStart} setReportEnd={setReportEnd} expenseTitle={expenseTitle} setExpenseTitle={setExpenseTitle} expenseAmount={expenseAmount} setExpenseAmount={setExpenseAmount} addExpense={addExpense} openReceipt={setReceiptSale} />}{tab === "settings" && <SettingsPage t={t} language={data.settings.language} setLanguage={setLanguage} backup={backup} restoreInputRef={restoreInputRef} openShopInfo={() => setShopInfoOpen(true)} openAbout={() => setAboutOpen(true)} />}</div><SideMenu
   open={menuOpen}
   onClose={() => setMenuOpen(false)}
   items={navItems}
@@ -935,6 +949,102 @@ function CategoriesPage({
   );
 }
 function CustomersPage({ t, customers, search, setSearch, openAdd, openEdit, deleteCustomer }) { const filtered = customers.filter((c) => c.name.toLowerCase().includes(search.toLowerCase())); return <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4"><h2 className="text-2xl font-black">{t("customers")}</h2><div className="flex gap-4"><SearchBox value={search} onChange={setSearch} placeholder={t("searchCustomers")} /><button onClick={openAdd} className="flex shrink-0 items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white"><Users /> Add</button></div>{filtered.map((c) => <Card key={c.id} className="p-4"><div className="flex items-center justify-between gap-4"><div><p className="text-lg font-black">{c.name}</p><p className="mt-1 text-slate-500">{c.debtReceivable || c.debtPayable ? `Debt: ${formatMoney(c.debtReceivable - c.debtPayable)}` : t("noDebt")}</p>{c.phone && <p className="mt-1 text-sm text-slate-500">{c.phone}</p>}</div><div className="flex gap-2"><button onClick={() => openEdit(c)} className="rounded-2xl bg-blue-50 p-3 text-blue-700"><Edit3 /></button><button onClick={() => deleteCustomer(c.id)} className="rounded-2xl bg-red-50 p-3 text-red-500"><Trash2 /></button></div></div></Card>)}</motion.div>; }
+
+function SalesHistoryPage({ t, sales, customers, openReceipt }) {
+  const [search, setSearch] = useState("");
+  const [customerId, setCustomerId] = useState("");
+  const [status, setStatus] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const filteredSales = sales.filter((sale) => {
+    const receipt = String(sale.receiptNo || "").toLowerCase();
+    const customerName = String(sale.customerName || "").toLowerCase();
+    const query = search.trim().toLowerCase();
+    const matchesSearch = !query || receipt.includes(query) || customerName.includes(query);
+    const matchesCustomer = !customerId || sale.customerId === customerId;
+    const matchesStatus = !status || (sale.status || "completed") === status;
+    const matchesStart = !startDate || new Date(sale.createdAt) >= new Date(`${startDate}T00:00:00`);
+    const matchesEnd = !endDate || new Date(sale.createdAt) <= new Date(`${endDate}T23:59:59`);
+    return matchesSearch && matchesCustomer && matchesStatus && matchesStart && matchesEnd;
+  });
+
+  const totalNet = filteredSales.reduce((sum, sale) => sum + getSaleNetTotal(sale), 0);
+  const cancelledCount = filteredSales.filter((sale) => sale.status === "cancelled").length;
+  const returnedCount = filteredSales.filter((sale) => sale.status === "returned" || sale.status === "partial_returned").length;
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-black">{t("salesHistory")}</h2>
+        <p className="mt-1 text-xs text-slate-500">View old receipts, cancel sales, and return items.</p>
+      </div>
+
+      <Card className="p-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="col-span-2">
+            <SearchBox value={search} onChange={setSearch} placeholder={t("searchReceipts")} />
+          </div>
+          <select value={customerId} onChange={(e) => setCustomerId(e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-xs font-bold outline-none">
+            <option value="">{t("allCustomers")}</option>
+            {customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}
+          </select>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-xs font-bold outline-none">
+            <option value="">{t("allStatuses")}</option>
+            <option value="completed">Completed</option>
+            <option value="partial_returned">Partial returned</option>
+            <option value="returned">Returned</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <input aria-label={t("fromDate")} type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-xs font-bold outline-none" />
+          <input aria-label={t("toDate")} type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-3 text-xs font-bold outline-none" />
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-3 gap-3">
+        <Card className="p-3">
+          <p className="text-[11px] font-bold text-slate-500">Receipts</p>
+          <p className="mt-1 text-lg font-black">{filteredSales.length}</p>
+        </Card>
+        <Card className="p-3">
+          <p className="text-[11px] font-bold text-slate-500">Returned</p>
+          <p className="mt-1 text-lg font-black">{returnedCount}</p>
+        </Card>
+        <Card className="p-3">
+          <p className="text-[11px] font-bold text-slate-500">Cancelled</p>
+          <p className="mt-1 text-lg font-black">{cancelledCount}</p>
+        </Card>
+      </div>
+
+      <Card className="p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-black">{t("receipts")}</h3>
+          <p className="text-xs font-black text-blue-700">{formatMoney(totalNet)}</p>
+        </div>
+        {filteredSales.length === 0 ? (
+          <p className="rounded-2xl border border-dashed border-blue-200 p-4 text-center text-slate-500">No receipts found</p>
+        ) : (
+          filteredSales.map((sale) => (
+            <button key={sale.id} onClick={() => openReceipt(sale)} className="mb-3 w-full rounded-2xl border border-blue-100 p-4 text-left last:mb-0">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-black">Receipt {sale.receiptNo}</p>
+                  <p className="mt-1 text-xs text-slate-500">{sale.customerName} · {new Date(sale.createdAt).toLocaleString()}</p>
+                  <span className={`mt-2 inline-flex rounded-full px-3 py-1 text-[11px] font-black ${sale.status === "cancelled" ? "bg-red-50 text-red-600" : sale.status === "returned" || sale.status === "partial_returned" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"}`}>{getSaleStatusLabel(sale)}</span>
+                </div>
+                <div className="text-right">
+                  <p className="font-black">{formatMoney(getSaleNetTotal(sale))}</p>
+                  {getSaleReturnedAmount(sale) > 0 && <p className="mt-1 text-[11px] text-amber-600">Returned {formatMoney(getSaleReturnedAmount(sale))}</p>}
+                </div>
+              </div>
+            </button>
+          ))
+        )}
+      </Card>
+    </motion.div>
+  );
+}
+
 function ReportsPage({ t, report, reportStart, reportEnd, setReportStart, setReportEnd, expenseTitle, setExpenseTitle, expenseAmount, setExpenseAmount, addExpense, openReceipt }) { return <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4"><h2 className="text-2xl font-black">{t("reports")}</h2><Card className="p-4"><p className="mb-3 font-bold text-slate-500">{t("dateRange")}</p><div className="grid grid-cols-2 gap-3"><input type="date" value={reportStart} onChange={(e) => setReportStart(e.target.value)} className="h-11 rounded-2xl border border-slate-200 px-3 font-bold" /><input type="date" value={reportEnd} onChange={(e) => setReportEnd(e.target.value)} className="h-11 rounded-2xl border border-slate-200 px-3 font-bold" /></div><p className="mt-3 text-right font-bold text-slate-500">{report.sales.length} {t("salesInRange")}</p></Card><div className="grid grid-cols-2 gap-4"><Stat icon={<Wallet />} label="Revenue" value={formatMoney(report.revenue)} /><Stat icon={<TrendingUp />} label={t("profit")} value={formatMoney(report.profit)} /><Stat icon={<FileText />} label={t("expenses")} value={formatMoney(report.expenseTotal)} tone="amber" /><Stat icon={<TrendingUp />} label={t("debtReceivable")} value={formatMoney(report.debtReceivable)} /><Stat icon={<TrendingUp />} label={t("debtPayable")} value={formatMoney(report.debtPayable)} tone="red" /><Stat icon={<Wallet />} label={t("net")} value={formatMoney(report.net)} /></div><Card className="p-4"><h3 className="mb-4 text-lg font-black">{t("addExpense")}</h3><input value={expenseTitle} onChange={(e) => setExpenseTitle(e.target.value)} placeholder={t("expenseTitle")} className="mb-3 h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm" /><input value={expenseAmount} onChange={(e) => setExpenseAmount(e.target.value)} type="number" placeholder={t("amount")} className="mb-4 h-11 w-full rounded-2xl border border-slate-200 px-4 text-sm" /><button onClick={addExpense} className="flex h-11 w-full items-center justify-center gap-3 rounded-2xl bg-blue-600 font-black text-white"><FileText /> {t("saveExpense")}</button></Card><ReceiptList title={t("transactionHistory")} sales={report.sales} openReceipt={openReceipt} empty="No transactions" /><ReportList title={t("bestSellers")} items={report.bestSellers.map((i, idx) => ({ id: idx, left: i.name, sub: `${i.qty} sold`, right: formatMoney(i.total) }))} empty="No best sellers" /><ReportList title={t("recentExpenses")} items={report.expenses.map((e) => ({ id: e.id, left: e.title, sub: new Date(e.createdAt).toLocaleString(), right: formatMoney(e.amount) }))} empty="No expenses" /></motion.div>; }
 function SettingsPage({ t, language, setLanguage, backup, restoreInputRef, openShopInfo, openAbout }) { const [openLang, setOpenLang] = useState(false); return <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-4"><h2 className="text-2xl font-black">{t("settings")}</h2><button onClick={() => setOpenLang(!openLang)} className="w-full text-left"><Card className="flex items-center justify-between p-4"><div className="flex items-center gap-4"><IconBox><Languages /></IconBox><div><p className="text-lg font-black">{t("language")}</p><p className="mt-1 text-slate-500">{language === "my" ? "မြန်မာ" : "English"}</p></div></div><ChevronRight className="text-blue-600" /></Card></button>{openLang && <Card className="overflow-hidden p-2"><button onClick={() => { setLanguage("my"); setOpenLang(false); }} className="w-full rounded-2xl px-4 py-3 text-left font-bold hover:bg-blue-50">မြန်မာ</button><button onClick={() => { setLanguage("en"); setOpenLang(false); }} className="w-full rounded-2xl px-4 py-3 text-left font-bold hover:bg-blue-50">English</button></Card>}<SettingRow icon={<House />} title={t("shopInfo")} sub={t("shopInfoSub")} onClick={openShopInfo} /><SettingRow icon={<Download />} title={t("backup")} sub={t("backupSub")} onClick={backup} /><SettingRow icon={<Upload />} title={t("restore")} sub={t("restoreSub")} onClick={() => restoreInputRef.current?.click()} /><SettingRow icon={<Info />} title={t("about")} sub={t("aboutSub")} onClick={openAbout} /></motion.div>; }
 function SettingRow({ icon, title, sub, onClick }) { return <button onClick={onClick} className="w-full text-left"><Card className="flex items-center justify-between p-4"><div className="flex items-center gap-4"><IconBox>{icon}</IconBox><div><p className="text-lg font-black">{title}</p><p className="mt-1 text-slate-500">{sub}</p></div></div><ChevronRight className="text-blue-600" /></Card></button>; }
